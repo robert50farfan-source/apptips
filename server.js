@@ -2,9 +2,16 @@ const express = require('express');
 const fs      = require('fs');
 const path    = require('path');
 
-const app       = express();
-const PORT      = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
+const app      = express();
+const PORT     = process.env.PORT || 3000;
+// DATA_DIR permite montar un volumen persistente en producción (Dokploy/Docker)
+const DATA_DIR  = process.env.DATA_DIR || __dirname;
+const DATA_FILE = path.join(DATA_DIR, 'data.json');
+
+// Garantizar que el directorio de datos existe
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 // --- Middleware ---
 app.use(express.json({ limit: '2mb' }));

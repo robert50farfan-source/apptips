@@ -3,6 +3,7 @@ node_modules/
 
 # Datos persistidos (no versionar datos de producción)
 data.json
+data/
 
 # Entorno
 .env
