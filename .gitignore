@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+
+# Datos persistidos (no versionar datos de producción)
+data.json
+
+# Entorno
+.env
+.env.local
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.code-workspace

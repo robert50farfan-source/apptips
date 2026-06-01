@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AITips Hub - Portal de Tips de IA Generativa</title>
+    <meta
+      name="description"
+      content="Portal interactivo para docentes de Ingeniería Informática para organizar, registrar y compartir tips y prompts de Inteligencia Artificial Generativa."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- HEADER PRINCIPAL -->
+      <header>
+        <div class="brand-section">
+          <div class="brand-icon-wrapper" id="brand-logo">🧬</div>
+          <div class="brand-title">
+            <h1>AITips Hub</h1>
+            <p>
+              Portal de Tips & Prompts de IA Generativa | Ingeniería Informática
+            </p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span id="role-indicator" class="role-badge"></span>
+          <button
+            class="btn btn-secondary admin-only"
+            id="btn-manage-subjects"
+            title="Gestionar materias y cursos universitarios"
+          >
+            <span>📚</span> Materias
+          </button>
+          <button
+            class="btn btn-secondary admin-only"
+            id="btn-data-settings"
+            title="Importar o exportar bases de datos de tips"
+          >
+            <span>💾</span> Portabilidad
+          </button>
+          <button
+            class="btn btn-primary admin-only"
+            id="btn-new-tip"
+            title="Registrar un nuevo tip o prompt de IA"
+          >
+            <span>➕</span> Nuevo Tip
+          </button>
+          <button
+            class="btn btn-secondary admin-only"
+            id="btn-logout"
+            title="Salir del modo administrador"
+          >
+            🚪 Salir
+          </button>
+        </div>
+      </header>
+
+      <!-- ESTADÍSTICAS DEL DASHBOARD -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">💡</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-tips">0</div>
+            <div class="stat-label">Total de Tips</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">📘</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-subjects">0</div>
+            <div class="stat-label">Materias / Cursos</div>
+          </div>
+        </div>
+        <div class="stat-card admin-only">
+          <div class="stat-icon cyan">★</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-favorites">0</div>
+            <div class="stat-label">Favoritos</div>
+          </div>
+        </div>
+        <div class="stat-card admin-only">
+          <div class="stat-icon emerald">🎓</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-students">0</div>
+            <div class="stat-label">Para Estudiantes</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BARRA DE BÚSQUEDA Y FILTRADO -->
+      <section class="search-filter-panel">
+        <div class="search-row">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="search-input"
+              class="search-input"
+              placeholder="Buscar por título, disparador, etiquetas, descripción..."
+            />
+          </div>
+        </div>
+        <div class="filters-row">
+          <select
+            id="filter-subject"
+            class="filter-select"
+            aria-label="Filtrar por materia"
+          >
+            <option value="all">Todas las materias</option>
+          </select>
+          <select
+            id="filter-category"
+            class="filter-select"
+            aria-label="Filtrar por categoría"
+          >
+            <option value="all">Todas las categorías</option>
+            <option value="Custom Instructions">Custom Instructions</option>
+            <option value="Prompt Engineering">Prompt Engineering</option>
+            <option value="Proyectos y Colaboración">
+              Proyectos y Colaboración
+            </option>
+            <option value="Herramientas e Integraciones">
+              Herramientas e Integraciones
+            </option>
+            <option value="Otros">Otros</option>
+          </select>
+
+          <div class="filter-tabs">
+            <button class="tab-btn active" data-tab="all">
+              Todos los Tips
+            </button>
+            <button class="tab-btn admin-only" data-tab="favorites">Favoritos ★</button>
+            <button class="tab-btn admin-only" data-tab="students">
+              Compartidos Alumnos 👁️
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- GRID DE TARJETAS DE TIPS -->
+      <main class="tips-grid" id="tips-grid">
+        <!-- Las tarjetas se inyectarán aquí mediante JS -->
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <span class="footer-logo">🧬 AITips Hub</span>
+            <p class="footer-tagline">
+              Plataforma académica para la gestión y transferencia de prompts
+              de Inteligencia Artificial Generativa.
+            </p>
+          </div>
+          <div class="footer-contact">
+            <a href="mailto:luisrobert.farfan@gmail.com" class="footer-email">
+              luisrobert.farfan@gmail.com
+            </a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p class="footer-copyright">
+            &copy; <span id="footer-year"></span> Ing. Robert Farfan. Todos los derechos reservados.
+          </p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ==================== MODALES ==================== -->
+
+    <!-- 1. MODAL DE VISTA DETALLADA DEL TIP -->
+    <div class="modal-overlay" id="view-modal">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="detail-badges">
+            <span class="subject-badge" id="detail-subject">Materia</span>
+            <span
+              class="tag-badge"
+              id="detail-category"
+              style="
+                background: rgba(6, 182, 212, 0.15);
+                border-color: rgba(6, 182, 212, 0.3);
+                color: var(--color-secondary);
+              "
+              >Categoría</span
+            >
+          </div>
+          <button class="modal-close" aria-label="Cerrar modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-header">
+            <h2 class="detail-title" id="detail-title">Título del Tip</h2>
+          </div>
+
+          <p class="detail-description" id="detail-description">
+            Descripción detallada del tip.
+          </p>
+
+          <div id="detail-trigger-container"></div>
+
+          <div class="prompt-box">
+            <div class="prompt-box-header">
+              <span>PROMPT / INSTRUCCIÓN DE IA</span>
+              <div style="display: flex; gap: 10px">
+                <button
+                  class="prompt-copy-btn"
+                  id="detail-copy-btn"
+                  title="Copiar prompt al portapapeles"
+                >
+                  <span>📋</span> Copiar Prompt
+                </button>
+                <button
+                  class="prompt-copy-btn"
+                  id="detail-markdown-btn"
+                  title="Copiar tip completo formateado en Markdown"
+                  style="color: var(--color-secondary)"
+                >
+                  <span>📝</span> Copiar Markdown
+                </button>
+              </div>
+            </div>
+            <pre
+              class="prompt-code"
+            ><code id="detail-prompt-code">Prompt...</code></pre>
+          </div>
+
+          <div id="detail-steps-section" style="margin-bottom: 1.5rem">
+            <h3 class="detail-section-title">
+              🛠️ Instrucciones de configuración
+            </h3>
+            <ol class="steps-list" id="detail-steps"></ol>
+          </div>
+
+          <div id="detail-usecases-section" style="margin-bottom: 1.5rem">
+            <h3 class="detail-section-title">
+              🎯 Casos de Uso en Clase/Proyectos
+            </h3>
+            <ul class="use-cases-list" id="detail-usecases"></ul>
+          </div>
+
+          <div id="detail-links-section" style="margin-bottom: 1rem">
+            <h3 class="detail-section-title">
+              🔗 Recursos y Enlaces de Interés
+            </h3>
+            <div class="links-container" id="detail-links"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. MODAL DE FORMULARIO DE TIP (CREAR / EDITAR) -->
+    <div class="modal-overlay" id="form-modal">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h2 id="form-modal-title">Registrar Nuevo Tip</h2>
+          <button class="modal-close" aria-label="Cerrar modal">&times;</button>
+        </div>
+        <form id="tip-form">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label" for="form-title"
+                >Título del Tip
+                <span style="color: var(--color-danger)">*</span></label
+              >
+              <input
+                type="text"
+                id="form-title"
+                class="form-control"
+                placeholder="Ej: Prompt para pruebas unitarias automatizadas"
+                required
+              />
+            </div>
+
+            <div class="form-group row">
+              <div>
+                <label class="form-label" for="form-subject"
+                  >Materia / Curso
+                  <span style="color: var(--color-danger)">*</span></label
+                >
+                <select id="form-subject" class="form-control" required>
+                  <option value="" disabled selected>
+                    Cargando materias...
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" for="form-category"
+                  >Categoría
+                  <span style="color: var(--color-danger)">*</span></label
+                >
+                <select id="form-category" class="form-control" required>
+                  <option value="Custom Instructions">
+                    Custom Instructions
+                  </option>
+                  <option value="Prompt Engineering">Prompt Engineering</option>
+                  <option value="Proyectos y Colaboración">
+                    Proyectos y Colaboración
+                  </option>
+                  <option value="Herramientas e Integraciones">
+                    Herramientas e Integraciones
+                  </option>
+                  <option value="Otros">Otros</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div>
+                <label class="form-label" for="form-trigger"
+                  >Palabra Clave / Disparador (Opcional)</label
+                >
+                <input
+                  type="text"
+                  id="form-trigger"
+                  class="form-control"
+                  placeholder="Ej: /socratic o ChatGPT Project"
+                />
+              </div>
+              <div>
+                <label class="form-label"
+                  >Etiquetas (Presiona Enter o Coma para agregar)</label
+                >
+                <div class="tags-input-container">
+                  <div
+                    id="form-tags-list"
+                    style="
+                      display: inline-flex;
+                      flex-wrap: wrap;
+                      gap: 4px;
+                      margin-right: 4px;
+                    "
+                  ></div>
+                  <input
+                    type="text"
+                    id="form-tags-input"
+                    class="tags-input-field"
+                    placeholder="Ej: chatgpt, tests"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="form-description"
+                >Descripción Corta / Resumen
+                <span style="color: var(--color-danger)">*</span></label
+              >
+              <textarea
+                id="form-description"
+                class="form-control"
+                rows="2"
+                placeholder="Explica brevemente para qué sirve este tip..."
+                required
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="form-prompt"
+                >Prompt / Instrucción de IA
+                <span style="color: var(--color-danger)">*</span></label
+              >
+              <textarea
+                id="form-prompt"
+                class="form-control form-control-code"
+                rows="6"
+                placeholder="Escribe el prompt exacto de la plantilla..."
+                required
+              ></textarea>
+            </div>
+
+            <!-- Campos Dinámicos -->
+            <div
+              class="form-group"
+              style="
+                border-top: 1px solid var(--border-glass);
+                padding-top: 1rem;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                <label class="form-label" style="margin-bottom: 0"
+                  >🛠️ Guía Paso a Paso para usarlo</label
+                >
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  id="add-step-btn"
+                >
+                  + Añadir Paso
+                </button>
+              </div>
+              <div id="steps-inputs-container"></div>
+            </div>
+
+            <div
+              class="form-group"
+              style="
+                border-top: 1px solid var(--border-glass);
+                padding-top: 1rem;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                <label class="form-label" style="margin-bottom: 0"
+                  >🎯 Casos de Uso Recomendados</label
+                >
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  id="add-usecase-btn"
+                >
+                  + Añadir Caso
+                </button>
+              </div>
+              <div id="usecases-inputs-container"></div>
+            </div>
+
+            <div
+              class="form-group"
+              style="
+                border-top: 1px solid var(--border-glass);
+                padding-top: 1rem;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                <label class="form-label" style="margin-bottom: 0"
+                  >🔗 Recursos y Enlaces</label
+                >
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  id="add-link-btn"
+                >
+                  + Añadir Enlace
+                </button>
+              </div>
+              <div id="links-inputs-container"></div>
+            </div>
+
+            <div
+              class="form-group row"
+              style="
+                border-top: 1px solid var(--border-glass);
+                padding-top: 1rem;
+                margin-bottom: 0;
+              "
+            >
+              <label class="checkbox-label">
+                <input type="checkbox" id="form-favorite" />
+                <span>Marcar como Favorito (Acceso rápido) ★</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="form-students" checked />
+                <span>Habilitar para Alumnos (Compartido) 👁️</span>
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-close">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">Guardar Tip</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. MODAL DE GESTIÓN DE MATERIAS -->
+    <div class="modal-overlay" id="subject-modal">
+      <div class="modal-container" style="max-width: 500px">
+        <div class="modal-header">
+          <h2>Gestionar Materias</h2>
+          <button class="modal-close" aria-label="Cerrar modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              margin-bottom: 1rem;
+            "
+          >
+            Define las materias o cursos que dictas para organizar tus tips. Los
+            cambios en los nombres se reflejarán automáticamente en tus tips
+            registrados.
+          </p>
+
+          <div class="subject-manager-list" id="subject-manager-list">
+            <!-- Lista cargada dinámicamente -->
+          </div>
+
+          <form id="add-subject-form" style="display: flex; gap: 0.5rem">
+            <input
+              type="text"
+              id="form-new-subject"
+              class="form-control"
+              placeholder="Nueva Materia (ej: Inteligencia Artificial)"
+              required
+            />
+            <button
+              type="submit"
+              class="btn btn-primary"
+              style="white-space: nowrap"
+            >
+              Añadir
+            </button>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. MODAL DE PORTABILIDAD DE DATOS -->
+    <div class="modal-overlay" id="data-modal">
+      <div class="modal-container" style="max-width: 500px">
+        <div class="modal-header">
+          <h2>Configuración y Portabilidad</h2>
+          <button class="modal-close" aria-label="Cerrar modal">&times;</button>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 1.5rem">
+
+          <!-- Exportar -->
+          <div>
+            <h3 class="detail-section-title" style="margin-bottom: 0.5rem">
+              📥 Exportar Base de Datos
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem">
+              Descarga un archivo JSON de respaldo con todas tus materias y tips.
+            </p>
+            <button class="btn btn-accent" id="export-json-btn" style="width: 100%; justify-content: center">
+              <span>📤</span> Descargar Base de Datos (.json)
+            </button>
+          </div>
+
+          <!-- Importar -->
+          <div style="border-top: 1px solid var(--border-glass); padding-top: 1.5rem">
+            <h3 class="detail-section-title" style="margin-bottom: 0.5rem">
+              📤 Importar Base de Datos
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem">
+              Carga un archivo JSON generado previamente. Podrás combinarlo con los datos actuales o sobrescribirlos.
+            </p>
+            <div style="position: relative; width: 100%">
+              <input type="file" id="import-file-input" accept=".json" style="display: none" />
+              <button
+                class="btn btn-secondary"
+                onclick="document.getElementById('import-file-input').click()"
+                style="width: 100%; justify-content: center"
+              >
+                <span>📥</span> Cargar Archivo JSON...
+              </button>
+            </div>
+          </div>
+
+          <!-- Cambiar PIN (solo admin) -->
+          <div class="admin-only" style="border-top: 1px solid var(--border-glass); padding-top: 1.5rem">
+            <h3 class="detail-section-title" style="margin-bottom: 0.5rem">
+              🔐 Cambiar PIN de Administrador
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem">
+              PIN actual por defecto: <strong>1234</strong>
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+              <input type="password" id="new-pin-input" class="form-control" placeholder="Nuevo PIN" style="flex: 1; min-width: 130px" />
+              <input type="password" id="confirm-pin-input" class="form-control" placeholder="Confirmar PIN" style="flex: 1; min-width: 130px" />
+              <button class="btn btn-secondary" id="btn-change-pin" style="white-space: nowrap">Cambiar PIN</button>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST DE NOTIFICACIONES -->
+    <div class="toast" id="toast-notification">
+      <div id="toast-message">✓ Operación realizada.</div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="tips-data.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+      document.getElementById("footer-year").textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+</html>

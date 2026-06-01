@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AITips Hub – Administración</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="admin-login-page">
+    <div class="admin-login-wrap">
+      <div class="login-brand">
+        <div class="login-logo">🧬</div>
+        <h1>AITips Hub</h1>
+        <p>Panel de Administración</p>
+        <span class="login-subtitle">Docentes · Ingeniería Informática</span>
+      </div>
+
+      <div class="admin-pin-card">
+        <div class="login-card-icon">🔑</div>
+        <h3>Acceso Docente / Admin</h3>
+        <p>Ingresa el PIN para gestionar tips, materias e importar/exportar datos.</p>
+        <div class="pin-group">
+          <input
+            type="password"
+            id="admin-pin-input"
+            class="form-control"
+            placeholder="PIN de acceso"
+            maxlength="20"
+            autocomplete="current-password"
+            autofocus
+          />
+          <button class="btn btn-primary" id="btn-login-admin">Ingresar</button>
+        </div>
+        <p class="pin-error hidden" id="pin-error">PIN incorrecto. Intenta nuevamente.</p>
+      </div>
+
+      <a href="index.html" class="back-to-site">← Volver al sitio</a>
+
+      <p class="login-footer-text">
+        Soporte técnico: <strong>Ing. Robert Farfan</strong> &mdash;
+        <a href="mailto:luisrobert.farfan@gmail.com">luisrobert.farfan@gmail.com</a>
+      </p>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+      if (AUTH.isAdmin()) {
+        window.location.replace("index.html");
+      }
+
+      const doLogin = () => {
+        const pin = document.getElementById("admin-pin-input").value;
+        const errorEl = document.getElementById("pin-error");
+        if (AUTH.loginAdmin(pin)) {
+          window.location.replace("index.html");
+        } else {
+          errorEl.classList.remove("hidden");
+          document.getElementById("admin-pin-input").value = "";
+          document.getElementById("admin-pin-input").focus();
+        }
+      };
+
+      document.getElementById("btn-login-admin").addEventListener("click", doLogin);
+      document.getElementById("admin-pin-input").addEventListener("keydown", e => {
+        if (e.key === "Enter") doLogin();
+      });
+    </script>
+  </body>
+</html>
