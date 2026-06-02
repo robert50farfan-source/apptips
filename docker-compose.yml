@@ -8,6 +8,12 @@ services:
       - DATA_DIR=/app/data
     volumes:
       - app-data:/app/data
+    networks:
+      - dokploy-network
 
 volumes:
   app-data:
+
+networks:
+  dokploy-network:
+    external: true
